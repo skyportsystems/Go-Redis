@@ -3,9 +3,9 @@
 //   Licensed under the Apache License, Version 2.0 (the "License");
 //   you may not use this file except in compliance with the License.
 //   You may obtain a copy of the License at
-//    
+//
 //   http://www.apache.org/licenses/LICENSE-2.0
-//    
+//
 //   Unless required by applicable law or agreed to in writing, software
 //   distributed under the License is distributed on an "AS IS" BASIS,
 //   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -844,6 +844,44 @@ func (c *asyncClient) Zrangebyscore(arg0 string, arg1 float64, arg2 float64) (re
 	}
 	return result, err
 
+}
+
+// Command to find the maximum key in a given range.
+// We use the command ZREVRANGEBYSCORE <key> <max> <min> LIMIT <offset> <count>
+func (c *asyncClient) Zrangemax(arg0 string, arg1 int64, arg2 int64) (result FutureBytesArray, err Error) {
+	arg0bytes := []byte(arg0)
+	arg1bytes := []byte(fmt.Sprintf("%d", arg1))
+	arg2bytes := []byte(fmt.Sprintf("%d", arg2))
+	// Impose a limit of 1.
+	arg3bytes := []byte("LIMIT")
+	arg4bytes := []byte(fmt.Sprintf("%d", 0))
+	arg5bytes := []byte(fmt.Sprintf("%d", 1))
+
+	var resp *PendingResponse
+	resp, err = c.conn.QueueRequest(&ZREVRANGEBYSCORE, [][]byte{arg0bytes, arg1bytes, arg2bytes, arg3bytes, arg4bytes, arg5bytes})
+	if err == nil {
+		result = resp.future.(FutureBytesArray)
+	}
+	return result, err
+}
+
+// Command to find the minimum key in a given range.
+// We use the command ZRANGEBYSCORE <key> <min> <max> LIMIT <offset> <count>
+func (c *asyncClient) Zrangemin(arg0 string, arg1 int64, arg2 int64) (result FutureBytesArray, err Error) {
+	arg0bytes := []byte(arg0)
+	arg1bytes := []byte(fmt.Sprintf("%d", arg1))
+	arg2bytes := []byte(fmt.Sprintf("%d", arg2))
+	// Impose a limit of 1.
+	arg3bytes := []byte("LIMIT")
+	arg4bytes := []byte(fmt.Sprintf("%d", 0))
+	arg5bytes := []byte(fmt.Sprintf("%d", 1))
+
+	var resp *PendingResponse
+	resp, err = c.conn.QueueRequest(&ZRANGEBYSCORE, [][]byte{arg0bytes, arg1bytes, arg2bytes, arg3bytes, arg4bytes, arg5bytes})
+	if err == nil {
+		result = resp.future.(FutureBytesArray)
+	}
+	return result, err
 }
 
 // Redis ZRANGEBYSCORE command.

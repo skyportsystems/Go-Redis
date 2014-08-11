@@ -851,6 +851,44 @@ func (c *syncClient) Zrangebyscore(arg0 string, arg1 float64, arg2 float64) (res
 
 }
 
+// Command to find the maximum key in a given range.
+// We use the command ZREVRANGEBYSCORE <key> <max> <min> LIMIT <offset> <count>
+func (c *syncClient) Zrangemax(arg0 string, arg1 int64, arg2 int64) (result [][]byte, err Error) {
+	arg0bytes := []byte(arg0)
+	arg1bytes := []byte(fmt.Sprintf("%d", arg1))
+	arg2bytes := []byte(fmt.Sprintf("%d", arg2))
+	// Impose a limit of 1.
+	arg3bytes := []byte("LIMIT")
+	arg4bytes := []byte(fmt.Sprintf("%d", 0))
+	arg5bytes := []byte(fmt.Sprintf("%d", 1))
+
+	var resp Response
+	resp, err = c.conn.ServiceRequest(&ZREVRANGEBYSCORE, [][]byte{arg0bytes, arg1bytes, arg2bytes, arg3bytes, arg4bytes, arg5bytes})
+	if err == nil {
+		result = resp.GetMultiBulkData()
+	}
+	return result, err
+}
+
+// Command to find the minimum key in a given range.
+// We use the command ZRANGEBYSCORE <key> <min> <max> LIMIT <offset> <count>
+func (c *syncClient) Zrangemin(arg0 string, arg1 int64, arg2 int64) (result [][]byte, err Error) {
+	arg0bytes := []byte(arg0)
+	arg1bytes := []byte(fmt.Sprintf("%d", arg1))
+	arg2bytes := []byte(fmt.Sprintf("%d", arg2))
+	// Impose a limit of 1.
+	arg3bytes := []byte("LIMIT")
+	arg4bytes := []byte(fmt.Sprintf("%d", 0))
+	arg5bytes := []byte(fmt.Sprintf("%d", 1))
+
+	var resp Response
+	resp, err = c.conn.ServiceRequest(&ZRANGEBYSCORE, [][]byte{arg0bytes, arg1bytes, arg2bytes, arg3bytes, arg4bytes, arg5bytes})
+	if err == nil {
+		result = resp.GetMultiBulkData()
+	}
+	return result, err
+}
+
 // Redis ZRANGEBYSCORE command.
 // Many scores will be whole numbers, thus this call uses int64s to
 // preserve precision.
